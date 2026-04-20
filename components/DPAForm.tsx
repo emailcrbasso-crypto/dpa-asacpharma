@@ -146,7 +146,7 @@ function SubSection({ title, children }: { title: string; children: React.ReactN
 // Main Form
 // ---------------------------------------------------------------------------
 
-export default function DPAForm() {
+export default function DPAForm({ token }: { token: string }) {
   const router = useRouter()
   const [form, setForm] = useState<RawFormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -179,7 +179,7 @@ export default function DPAForm() {
 
     let validated: FormData
     try {
-      validated = formSchema.parse(payload)
+      validated = formSchema.parse({ ...payload, token_convite: token })
     } catch (err) {
       if (err instanceof ZodError) {
         const fieldErrors: FieldErrors = {}

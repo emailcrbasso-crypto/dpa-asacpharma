@@ -1,6 +1,32 @@
+import { redirect } from 'next/navigation'
+import { supabaseAdmin } from '@/lib/supabase-server'
 import DPAForm from '@/components/DPAForm'
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { token?: string }
+}) {
+  const token = searchParams.token
+
+  if (!token) {
+    redirect('/acesso-negado')
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('dpa_tokens')
+    .select('id, usado')
+    .eq('token', token)
+    .maybeSingle()
+
+  if (error || !data) {
+    redirect('/acesso-negado')
+  }
+
+  if (data.usado) {
+    redirect('/ja-respondido')
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
 
@@ -55,7 +81,7 @@ export default function HomePage() {
         </div>
 
         {/* Form */}
-        <DPAForm />
+        <DPAForm token={token} />
 
         {/* Footer */}
         <footer className="text-center text-xs text-slate-400 pb-8 space-y-1">

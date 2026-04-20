@@ -52,6 +52,7 @@ export const formSchema = z.object({
   tema_sugerido: z
     .string({ required_error: 'Por favor, sugira um tema.' })
     .min(10, 'Por favor, descreva o tema com ao menos 10 caracteres.'),
+  token_convite: z.string().optional(),
 })
 
 export type FormData = z.infer<typeof formSchema>
