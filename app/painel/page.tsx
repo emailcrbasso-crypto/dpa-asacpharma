@@ -175,11 +175,11 @@ export default async function PainelPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-[#444b6c] sticky top-0 z-10">
+      <header className="bg-[#0F62AC] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Image
-              src="/logo-crbasso.svg.svg"
+              src="/logo-crbasso.png.png"
               alt="CR BASSO Educação Corporativa"
               width={120}
               height={32}

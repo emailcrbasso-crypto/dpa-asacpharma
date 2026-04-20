@@ -32,11 +32,11 @@ export default async function HomePage({
     <div className="min-h-screen bg-slate-50">
 
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <header className="bg-[#444b6c]">
+      <header className="bg-[#0F62AC]">
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/logo-crbasso.svg.svg"
+              src="/logo-crbasso.png.png"
               alt="CR BASSO Educação Corporativa"
               width={160}
               height={40}
