@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import CopyButton from '@/components/CopyButton'
 
+export const dynamic = 'force-dynamic'
+
 // ---------------------------------------------------------------------------
 // Labels
 // ---------------------------------------------------------------------------
