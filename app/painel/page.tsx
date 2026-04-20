@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { unstable_noStore as noStore } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import CopyButton from '@/components/CopyButton'
 import Image from 'next/image'
@@ -113,6 +114,7 @@ async function logout() {
 // ---------------------------------------------------------------------------
 
 export default async function PainelPage() {
+  noStore()
   const [{ data: respostas }, { data: tokens }] = await Promise.all([
     supabaseAdmin
       .from('dpa_respostas')
