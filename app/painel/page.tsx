@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import CopyButton from '@/components/CopyButton'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
@@ -174,14 +175,18 @@ export default async function PainelPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-[#1B3A5C] sticky top-0 z-10">
+      <header className="bg-[#444b6c] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-blue-300 text-xs font-semibold tracking-widest uppercase">
-              CR BASSO Educação Corporativa
-            </p>
+          <div className="flex items-center gap-4">
+            <Image
+              src="/logo-crbasso.svg.svg"
+              alt="CR BASSO Educação Corporativa"
+              width={120}
+              height={32}
+              className="h-8 w-auto"
+            />
             <h1 className="text-white font-bold text-lg leading-tight">
-              Painel DPA — Projeto ASAC PHARMA
+              Painel DPA — ASAC PHARMA
             </h1>
           </div>
           <form action={logout}>

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import DPAForm from '@/components/DPAForm'
+import Image from 'next/image'
 
 export default async function HomePage({
   searchParams,
@@ -31,16 +32,22 @@ export default async function HomePage({
     <div className="min-h-screen bg-slate-50">
 
       {/* ─── Header ─────────────────────────────────────────────── */}
-      <header className="bg-[#1B3A5C]">
+      <header className="bg-[#444b6c]">
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
-          <p className="text-blue-300 text-xs font-semibold tracking-widest uppercase mb-2">
-            CR BASSO Educação Corporativa
-          </p>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/logo-crbasso.svg.svg"
+              alt="CR BASSO Educação Corporativa"
+              width={160}
+              height={40}
+              className="h-10 w-auto"
+            />
+          </div>
           <h1 className="text-white text-2xl sm:text-3xl font-bold leading-tight">
             Diagnóstico Prévio Anônimo (DPA)
           </h1>
           <p className="text-blue-200 text-base font-medium mt-1">
-            Projeto ASAC PHARMA
+            ASAC PHARMA
           </p>
         </div>
       </header>
