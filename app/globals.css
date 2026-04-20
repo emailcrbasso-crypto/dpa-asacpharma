@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800;
+  }
+}
+
+@layer components {
+  .radio-option {
+    @apply flex items-start gap-3 w-full px-4 py-3 rounded-lg border-2 border-slate-200 bg-white
+           cursor-pointer transition-all duration-150
+           hover:border-blue-400 hover:bg-blue-50
+           has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50;
+  }
+
+  .radio-dot {
+    @apply mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-slate-300
+           transition-colors duration-150 flex items-center justify-center;
+  }
+
+  input[type='radio']:checked + .radio-dot {
+    @apply border-blue-600;
+  }
+}
