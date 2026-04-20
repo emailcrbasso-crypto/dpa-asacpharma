@@ -36,7 +36,7 @@ export default async function HomePage({
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
           <div className="flex justify-center mb-4">
             <Image
-              src="/logo-crbasso.png.png"
+              src="/logo_crbasso.png"
               alt="CR BASSO Educação Corporativa"
               width={160}
               height={40}

@@ -181,7 +181,7 @@ export default async function PainelPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Image
-              src="/logo-crbasso.png.png"
+              src="/logo_crbasso.png"
               alt="CR BASSO Educação Corporativa"
               width={120}
               height={32}
