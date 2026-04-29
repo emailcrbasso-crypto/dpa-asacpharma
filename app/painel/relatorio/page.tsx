@@ -60,7 +60,8 @@ export default async function RelatorioPage({
 
   const cookieStore = cookies()
   const auth = cookieStore.get('dpa_auth')
-  if (auth?.value !== process.env.PAINEL_SECRET) {
+  const expected = Buffer.from(process.env.PAINEL_SECRET ?? '').toString('base64')
+  if (!auth?.value || auth.value !== expected) {
     redirect('/painel/login')
   }
 
