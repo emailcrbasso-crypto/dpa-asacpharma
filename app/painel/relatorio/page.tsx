@@ -237,8 +237,8 @@ export default async function RelatorioPage({
                       {tokenMap.get(resp.token_convite as string)?.nome ?? `Resposta ${i + 1}`}
                     </p>
                   )}
-                  {resp.relato_blindado && <p style={{ margin: '0 0 4px 0' }}><strong>Relato:</strong> {String(resp.relato_blindado)}</p>}
-                  {resp.tema_sugerido && <p style={{ margin: 0 }}><strong>Tema sugerido:</strong> {String(resp.tema_sugerido)}</p>}
+                  {!!resp.relato_blindado && <p style={{ margin: '0 0 4px 0' }}><strong>Relato:</strong> {String(resp.relato_blindado)}</p>}
+                  {!!resp.tema_sugerido && <p style={{ margin: 0 }}><strong>Tema sugerido:</strong> {String(resp.tema_sugerido)}</p>}
                 </div>
               )
             })}
