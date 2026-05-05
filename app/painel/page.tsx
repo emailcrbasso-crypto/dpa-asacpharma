@@ -218,6 +218,20 @@ export default async function PainelPage() {
             >
               ↗ PDF Anônimo
             </a>
+            <a
+              href="/painel/relatorio-segmentado?mode=completo"
+              target="_blank"
+              className="text-white text-xs font-medium bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+            >
+              ↗ PDF Segmentado Completo
+            </a>
+            <a
+              href="/painel/relatorio-segmentado?mode=anonimo"
+              target="_blank"
+              className="text-white text-xs font-medium bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+            >
+              ↗ PDF Segmentado Anônimo
+            </a>
             <form action={logout}>
               <button
                 type="submit"
