@@ -163,11 +163,12 @@ export default async function RelatorioPage({
             <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: '#374151', margin: '0 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                {Object.entries(d).map(([k, v]) => {
+                {Object.entries(map).map(([k, lbl]) => {
+                  const v = d[k] ?? 0
                   const pct = totalRespostas > 0 ? Math.round((v / totalRespostas) * 100) : 0
                   return (
                     <tr key={k}>
-                      <td style={{ fontSize: '13px', padding: '3px 8px 3px 0', width: '40%' }}>{label(map, k)}</td>
+                      <td style={{ fontSize: '13px', padding: '3px 8px 3px 0', width: '40%' }}>{lbl}</td>
                       <td style={{ width: '45%', padding: '3px 8px' }}>
                         <div style={{ background: '#e2e8f0', borderRadius: '4px', height: '10px' }}>
                           <div style={{ background: '#0F62AC', width: `${pct}%`, height: '10px', borderRadius: '4px' }} />

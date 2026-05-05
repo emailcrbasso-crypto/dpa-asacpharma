@@ -69,11 +69,12 @@ function BarChart({ rows, field, map, total }: { rows: Row[]; field: string; map
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '8px' }}>
       <tbody>
-        {Object.entries(d).map(([k, v]) => {
+        {Object.entries(map).map(([k, label]) => {
+          const v = d[k] ?? 0
           const pct = total > 0 ? Math.round((v / total) * 100) : 0
           return (
             <tr key={k}>
-              <td style={{ fontSize: '11px', padding: '2px 8px 2px 0', width: '42%' }}>{lbl(map, k)}</td>
+              <td style={{ fontSize: '11px', padding: '2px 8px 2px 0', width: '42%' }}>{label}</td>
               <td style={{ width: '43%', padding: '2px 8px' }}>
                 <div style={{ background: '#e2e8f0', borderRadius: '4px', height: '8px' }}>
                   <div style={{ background: '#0F62AC', width: `${pct}%`, height: '8px', borderRadius: '4px' }} />
@@ -82,6 +83,7 @@ function BarChart({ rows, field, map, total }: { rows: Row[]; field: string; map
               <td style={{ fontSize: '11px', fontWeight: 'bold', width: '15%', textAlign: 'right' }}>
                 {v} <span style={{ fontWeight: 'normal', color: '#94a3b8' }}>({pct}%)</span>
               </td>
+
             </tr>
           )
         })}
