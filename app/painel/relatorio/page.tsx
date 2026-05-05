@@ -182,69 +182,68 @@ export default async function RelatorioPage({
           </div>
         ))}
 
-        {/* Tabela de respostas individuais */}
+        {/* Fichas individuais */}
         <div style={{ marginTop: '32px', pageBreakBefore: 'always' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
+          <h2 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '16px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
             Respostas Individuais {completo ? '(com identificação)' : '(anônimas)'}
           </h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-            <thead>
-              <tr style={{ background: '#f1f5f9' }}>
-                {completo && <><th style={th}>Nome</th><th style={th}>E-mail</th></>}
-                <th style={th}>Data</th>
-                <th style={th}>Liderança</th>
-                <th style={th}>Local</th>
-                <th style={th}>Nota</th>
-                <th style={th}>Freq. Ling.</th>
-                <th style={th}>Envolvimento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {r.map((resp, i) => {
-                const colab = resp.token_convite ? tokenMap.get(resp.token_convite as string) : null
-                return (
-                  <tr key={String(resp.id)} style={{ background: i % 2 === 0 ? 'white' : '#f8fafc' }}>
-                    {completo && (
-                      <>
-                        <td style={td}>{colab?.nome ?? '—'}</td>
-                        <td style={td}>{colab?.email ?? '—'}</td>
-                      </>
-                    )}
-                    <td style={td}>{resp.created_at ? new Date(resp.created_at as string).toLocaleDateString('pt-BR') : '—'}</td>
-                    <td style={td}>{resp.perfil_lideranca === true ? 'Sim' : 'Não'}</td>
-                    <td style={td}>{label(L_LOCALIZACAO, resp.localizacao_principal)}</td>
-                    <td style={{ ...td, textAlign: 'center', fontWeight: 'bold' }}>{String(resp.nota_respeito_profissionalismo ?? '—')}</td>
-                    <td style={td}>{label(L_FREQUENCIA, resp.frequencia_linguagem_inadequada)}</td>
-                    <td style={td}>{label(L_ENVOLVIMENTO, resp.nivel_envolvimento)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Relatos e temas sugeridos */}
-        {r.some((x) => x.relato_blindado || x.tema_sugerido) && (
-          <div style={{ marginTop: '28px', pageBreakBefore: 'always' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
-              Relatos e Temas Sugeridos
-            </h2>
-            {r.map((resp, i) => {
-              if (!resp.relato_blindado && !resp.tema_sugerido) return null
-              return (
-                <div key={String(resp.id)} style={{ marginBottom: '12px', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px' }}>
-                  {completo && (
-                    <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#0F62AC' }}>
-                      {tokenMap.get(resp.token_convite as string)?.nome ?? `Resposta ${i + 1}`}
-                    </p>
+          {r.map((resp, i) => {
+            const colab = resp.token_convite ? tokenMap.get(resp.token_convite as string) : null
+            const campos: { label: string; value: string }[] = [
+              { label: 'Data/Hora', value: resp.created_at ? new Date(resp.created_at as string).toLocaleString('pt-BR') : '—' },
+              { label: 'Perfil de liderança', value: resp.perfil_lideranca === true ? 'Sim' : resp.perfil_lideranca === false ? 'Não' : '—' },
+              { label: 'Localização principal', value: label(L_LOCALIZACAO, resp.localizacao_principal) },
+              { label: 'Nota — Respeito e Profissionalismo', value: String(resp.nota_respeito_profissionalismo ?? '—') },
+              { label: 'Justificativa da nota', value: String(resp.justificativa_nota ?? '—') },
+              { label: 'Frequência de linguagem inadequada', value: label(L_FREQUENCIA, resp.frequencia_linguagem_inadequada) },
+              { label: 'Nível de envolvimento nas situações', value: label(L_ENVOLVIMENTO, resp.nivel_envolvimento) },
+              { label: 'Percepção de ambiente seguro e respeitoso', value: label(L_PERCEPCAO, resp.percepcao_diversidade) },
+              { label: 'Autonomia das lideranças', value: label(L_AUTONOMIA, resp.autonomia_liderancas) },
+              { label: 'Clareza sobre compliance', value: label(L_CLAREZA, resp.clareza_compliance) },
+              { label: 'Relato', value: String(resp.relato_blindado ?? '—') },
+              { label: 'Tema sugerido', value: String(resp.tema_sugerido ?? '—') },
+            ]
+            return (
+              <div
+                key={String(resp.id)}
+                style={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  pageBreakInside: 'avoid',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Cabeçalho da ficha */}
+                <div style={{ background: '#f1f5f9', padding: '8px 14px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '12px', color: '#0F62AC' }}>
+                    {completo ? (colab?.nome ?? `Resposta ${i + 1}`) : `Resposta ${i + 1}`}
+                  </span>
+                  {completo && colab?.email && (
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>{colab.email}</span>
                   )}
-                  {!!resp.relato_blindado && <p style={{ margin: '0 0 4px 0' }}><strong>Relato:</strong> {String(resp.relato_blindado)}</p>}
-                  {!!resp.tema_sugerido && <p style={{ margin: 0 }}><strong>Tema sugerido:</strong> {String(resp.tema_sugerido)}</p>}
                 </div>
-              )
-            })}
-          </div>
-        )}
+                {/* Grid de campos */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' }}>
+                  {campos.map((c, ci) => (
+                    <div
+                      key={c.label}
+                      style={{
+                        padding: '6px 14px',
+                        borderBottom: ci < campos.length - 2 ? '1px solid #f1f5f9' : 'none',
+                        borderRight: ci % 2 === 0 ? '1px solid #f1f5f9' : 'none',
+                        fontSize: '11px',
+                      }}
+                    >
+                      <div style={{ color: '#94a3b8', marginBottom: '2px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{c.label}</div>
+                      <div style={{ color: '#1e293b', fontWeight: c.label.includes('Nota') ? 'bold' : 'normal' }}>{c.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
 
         {/* Rodapé */}
         <div style={{ marginTop: '32px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: '10px', color: '#94a3b8' }}>
