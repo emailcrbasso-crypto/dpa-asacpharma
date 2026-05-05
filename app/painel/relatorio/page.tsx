@@ -147,7 +147,7 @@ export default async function RelatorioPage({
         <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '14px 18px', marginBottom: '24px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Nota média — Respeito e Profissionalismo:</span>
           <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#1d4ed8', marginLeft: '12px' }}>{notaMedia}</span>
-          <span style={{ fontSize: '13px', color: '#475569', marginLeft: '6px' }}>/ 10</span>
+          <span style={{ fontSize: '13px', color: '#475569', marginLeft: '6px' }}>/ 5</span>
         </div>
 
         {/* Distribuições */}
