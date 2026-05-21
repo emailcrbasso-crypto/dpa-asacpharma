@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 // ─── Configuração do cliente (ajustar por projeto) ─────────────────────────
 const UNIVERSO_SETOR: Record<string, number> = {
-  laboratorio: 13,
+  laboratorio: 15,
   escritorio_paulista: 20,
   producao: 6,
 }
@@ -189,7 +189,8 @@ export default async function RelatorioExecutivoPage({
   ]
 
   const totalRespostas = r.length
-  const taxa = totalTokens > 0 ? Math.round((totalRespostas / totalTokens) * 100) : 0
+  const universoTotal = Object.values(UNIVERSO_SETOR).reduce((a, b) => a + b, 0)
+  const taxa = universoTotal > 0 ? Math.round((totalRespostas / universoTotal) * 100) : 0
   const taxaStr = `${taxa}%`
   const notaGeral = mediaNotas(r)
   const notaGeralStr = notaGeral > 0 ? notaGeral.toFixed(1) : '—'
@@ -388,7 +389,7 @@ export default async function RelatorioExecutivoPage({
           <SectionHeader num="02" title="Universo de Pesquisa e Taxa de Adesão" />
           <p style={{ color: C.muted2, fontSize: 13, lineHeight: 1.8, marginBottom: 28 }}>
             Antes de analisar as respostas, é fundamental entender quem respondeu e quem não respondeu.
-            O universo total é de <strong style={{ color: C.text }}>{totalTokens} colaboradores</strong>.
+            O universo total é de <strong style={{ color: C.text }}>{universoTotal} colaboradores</strong>.
             A taxa de adesão por setor revela padrões de engajamento e de silêncio, tão informativos quanto as próprias respostas.
           </p>
 
@@ -421,10 +422,10 @@ export default async function RelatorioExecutivoPage({
               <tr style={{ background: C.orangeDim, borderTop: `2px solid ${C.orangeBorder}` }}>
                 <td style={{ padding: '14px 16px', fontWeight: 900, color: C.text, fontSize: 13 }}>TOTAL</td>
                 <td style={{ padding: '14px 16px' }} />
-                <td style={{ padding: '14px 16px', fontWeight: 900, color: C.text, fontSize: 13 }}>{totalTokens}</td>
+                <td style={{ padding: '14px 16px', fontWeight: 900, color: C.text, fontSize: 13 }}>{universoTotal}</td>
                 <td style={{ padding: '14px 16px', fontWeight: 900, color: C.orange, fontSize: 13 }}>{totalRespostas}</td>
                 <td style={{ padding: '14px 16px', fontWeight: 900, color: C.orange, fontSize: 13 }}>{taxaStr}</td>
-                <td style={{ padding: '14px 16px', fontWeight: 900, color: C.muted2, fontSize: 13 }}>{totalTokens - totalRespostas}</td>
+                <td style={{ padding: '14px 16px', fontWeight: 900, color: C.muted2, fontSize: 13 }}>{universoTotal - totalRespostas}</td>
               </tr>
             </tbody>
           </table>
