@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { unstable_noStore as noStore } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-server'
 
@@ -11,6 +9,12 @@ const L_LOCALIZACAO: Record<string, string> = {
   escritorio_paulista: 'Escritório (Paulista)',
   laboratorio: 'Laboratório',
   producao: 'Produção',
+}
+
+const L_LOCALIZACAO_DEMO: Record<string, string> = {
+  escritorio_paulista: 'Departamento A',
+  laboratorio: 'Departamento B',
+  producao: 'Departamento C',
 }
 const L_FREQUENCIA: Record<string, string> = {
   nunca: 'Nunca',
@@ -98,6 +102,8 @@ function GrupoSection({
   rows,
   tokenMap,
   completo,
+  demo,
+  isUnidade,
   idx,
 }: {
   titulo: string
@@ -105,12 +111,15 @@ function GrupoSection({
   rows: Row[]
   tokenMap: Map<string, TokenRow>
   completo: boolean
+  demo: boolean
+  isUnidade: boolean
   idx: number
 }) {
   const total = rows.length
   const media = notaMedia(rows)
   const liderSim = rows.filter((x) => x.perfil_lideranca === true).length
   const liderNao = rows.filter((x) => x.perfil_lideranca === false).length
+  const locMap = demo ? L_LOCALIZACAO_DEMO : L_LOCALIZACAO
 
   const graficos: { title: string; field: string; map: Record<string, string> }[] = [
     { title: 'Frequência de linguagem inadequada', field: 'frequencia_linguagem_inadequada', map: L_FREQUENCIA },
@@ -120,6 +129,9 @@ function GrupoSection({
     { title: 'Clareza sobre compliance', field: 'clareza_compliance', map: L_CLAREZA },
   ]
 
+  const liderSimLabel = demo ? 'Perfil Liderança' : 'com liderança'
+  const liderNaoLabel = demo ? 'Perfil Operacional' : 'sem liderança'
+
   return (
     <div style={{ pageBreakBefore: idx > 0 ? 'always' : 'auto', marginBottom: '32px' }}>
       {/* Cabeçalho do grupo */}
@@ -127,9 +139,7 @@ function GrupoSection({
         <h2 style={{ color: 'white', fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{titulo}</h2>
         <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', margin: 0 }}>
           {total} respondente{total !== 1 ? 's' : ''}
-          {titulo.startsWith('Unidade') || titulo.startsWith('Escritório') || titulo.startsWith('Laboratório') || titulo.startsWith('Produção')
-            ? ` · ${liderSim} com liderança · ${liderNao} sem liderança`
-            : ''}
+          {isUnidade ? ` · ${liderSim} ${liderSimLabel} · ${liderNao} ${liderNaoLabel}` : ''}
         </p>
       </div>
 
@@ -168,8 +178,8 @@ function GrupoSection({
             const colab = resp.token_convite ? tokenMap.get(resp.token_convite as string) : null
             const campos: { label: string; value: string }[] = [
               { label: 'Data/Hora', value: resp.created_at ? new Date(resp.created_at as string).toLocaleString('pt-BR') : '—' },
-              { label: 'Perfil de liderança', value: resp.perfil_lideranca === true ? 'Sim' : resp.perfil_lideranca === false ? 'Não' : '—' },
-              { label: 'Localização', value: lbl(L_LOCALIZACAO, resp.localizacao_principal) },
+              { label: 'Perfil de liderança', value: resp.perfil_lideranca === true ? (demo ? 'Perfil Liderança' : 'Sim') : resp.perfil_lideranca === false ? (demo ? 'Perfil Operacional' : 'Não') : '—' },
+              { label: demo ? 'Departamento' : 'Localização', value: lbl(locMap, resp.localizacao_principal) },
               { label: 'Nota', value: String(resp.nota_respeito_profissionalismo ?? '—') },
               { label: 'Justificativa', value: String(resp.justificativa_nota ?? '—') },
               { label: 'Freq. linguagem inadequada', value: lbl(L_FREQUENCIA, resp.frequencia_linguagem_inadequada) },
@@ -216,15 +226,9 @@ export default async function RelatorioSegmentadoPage({
 }) {
   noStore()
 
-  const cookieStore = cookies()
-  const auth = cookieStore.get('dpa_auth')
-  const expected = Buffer.from(process.env.PAINEL_SECRET ?? '').toString('base64')
-  if (!auth?.value || auth.value !== expected) {
-    redirect('/painel/login')
-  }
-
   const mode = searchParams.mode ?? 'anonimo'
   const completo = mode === 'completo'
+  const demo = mode === 'demo'
 
   const [{ data: respostas }, { data: tokens }] = await Promise.all([
     supabaseAdmin.from('dpa_respostas').select('*').order('created_at', { ascending: true }),
@@ -239,11 +243,17 @@ export default async function RelatorioSegmentadoPage({
   const dataAtual = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
 
   // Segmentos por unidade
-  const unidades = [
-    { key: 'escritorio_paulista', label: 'Escritório (Paulista)', cor: '#0F62AC' },
-    { key: 'laboratorio', label: 'Laboratório', cor: '#0369a1' },
-    { key: 'producao', label: 'Produção', cor: '#0e7490' },
-  ]
+  const unidades = demo
+    ? [
+        { key: 'escritorio_paulista', label: 'Departamento A', cor: '#0F62AC' },
+        { key: 'laboratorio', label: 'Departamento B', cor: '#0369a1' },
+        { key: 'producao', label: 'Departamento C', cor: '#0e7490' },
+      ]
+    : [
+        { key: 'escritorio_paulista', label: 'Escritório (Paulista)', cor: '#0F62AC' },
+        { key: 'laboratorio', label: 'Laboratório', cor: '#0369a1' },
+        { key: 'producao', label: 'Produção', cor: '#0e7490' },
+      ]
   const porUnidade = unidades.map((u) => ({
     ...u,
     rows: r.filter((x) => x.localizacao_principal === u.key),
@@ -251,8 +261,8 @@ export default async function RelatorioSegmentadoPage({
 
   // Segmentos por liderança
   const porLideranca = [
-    { key: 'sim', label: 'Com Liderança', cor: '#1d4ed8', rows: r.filter((x) => x.perfil_lideranca === true) },
-    { key: 'nao', label: 'Sem Liderança', cor: '#475569', rows: r.filter((x) => x.perfil_lideranca === false) },
+    { key: 'sim', label: demo ? 'Perfil Liderança' : 'Com Liderança', cor: '#1d4ed8', rows: r.filter((x) => x.perfil_lideranca === true) },
+    { key: 'nao', label: demo ? 'Perfil Operacional' : 'Sem Liderança', cor: '#475569', rows: r.filter((x) => x.perfil_lideranca === false) },
   ]
 
   return (
@@ -275,7 +285,7 @@ export default async function RelatorioSegmentadoPage({
         </button>
         <a href="/painel" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none' }}>← Voltar ao painel</a>
         <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#94a3b8' }}>
-          Modo: <strong>{completo ? 'Completo (com identificação)' : 'Anônimo (sem identificação)'}</strong>
+          Modo: <strong>{completo ? 'Completo (com identificação)' : demo ? 'Demo (dados anônimos)' : 'Anônimo (sem identificação)'}</strong>
         </span>
         <script dangerouslySetInnerHTML={{ __html: `document.getElementById('btn-print').onclick = () => window.print()` }} />
       </div>
@@ -287,7 +297,7 @@ export default async function RelatorioSegmentadoPage({
           <p style={{ color: '#0F62AC', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>CR BASSO EDUCAÇÃO CORPORATIVA</p>
           <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Relatório Segmentado — Diagnóstico Prévio Anônimo (DPA)</h1>
           <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
-            ASAC PHARMA &nbsp;·&nbsp; {dataAtual} &nbsp;·&nbsp; {totalRespostas} respostas &nbsp;·&nbsp; {completo ? 'Exportação Completa' : 'Exportação Anônima'}
+            {demo ? 'Empresa Cliente' : 'ASAC PHARMA'} &nbsp;·&nbsp; {dataAtual} &nbsp;·&nbsp; {totalRespostas} respostas &nbsp;·&nbsp; {completo ? 'Exportação Completa' : demo ? 'Modo Demo' : 'Exportação Anônima'}
           </p>
         </div>
 
@@ -295,7 +305,7 @@ export default async function RelatorioSegmentadoPage({
         <div style={{ marginBottom: '8px' }}>
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 16px', marginBottom: '24px' }}>
             <h2 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0, color: '#374151' }}>
-              PARTE 1 — Dados por Unidade de Atuação
+              {demo ? 'PARTE 1 — Dados por Departamento' : 'PARTE 1 — Dados por Unidade de Atuação'}
             </h2>
           </div>
           {porUnidade.map((u, i) => (
@@ -306,6 +316,8 @@ export default async function RelatorioSegmentadoPage({
               rows={u.rows}
               tokenMap={tokenMap}
               completo={completo}
+              demo={demo}
+              isUnidade={true}
               idx={i}
             />
           ))}
@@ -326,6 +338,8 @@ export default async function RelatorioSegmentadoPage({
               rows={l.rows}
               tokenMap={tokenMap}
               completo={completo}
+              demo={demo}
+              isUnidade={false}
               idx={i}
             />
           ))}
@@ -334,7 +348,7 @@ export default async function RelatorioSegmentadoPage({
         {/* Rodapé */}
         <div style={{ marginTop: '32px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: '10px', color: '#94a3b8' }}>
           CR BASSO Educação Corporativa &nbsp;·&nbsp; Relatório segmentado gerado automaticamente &nbsp;·&nbsp;
-          {completo ? 'Uso restrito — contém dados pessoais' : 'Dados consolidados — sem identificação individual'}
+          {completo ? 'Uso restrito — contém dados pessoais' : demo ? 'Versão demonstrativa — dados anônimos' : 'Dados consolidados — sem identificação individual'}
         </div>
       </div>
     </>

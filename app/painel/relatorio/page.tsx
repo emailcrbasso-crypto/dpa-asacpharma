@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { unstable_noStore as noStore } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-server'
 
@@ -51,6 +49,12 @@ function dist(rows: Record<string, unknown>[], field: string) {
   return counts
 }
 
+const L_LOCALIZACAO_DEMO: Record<string, string> = {
+  escritorio_paulista: 'Departamento A',
+  laboratorio: 'Departamento B',
+  producao: 'Departamento C',
+}
+
 export default async function RelatorioPage({
   searchParams,
 }: {
@@ -58,15 +62,10 @@ export default async function RelatorioPage({
 }) {
   noStore()
 
-  const cookieStore = cookies()
-  const auth = cookieStore.get('dpa_auth')
-  const expected = Buffer.from(process.env.PAINEL_SECRET ?? '').toString('base64')
-  if (!auth?.value || auth.value !== expected) {
-    redirect('/painel/login')
-  }
-
   const mode = searchParams.mode ?? 'anonimo'
   const completo = mode === 'completo'
+  const demo = mode === 'demo'
+  const locMap = demo ? L_LOCALIZACAO_DEMO : L_LOCALIZACAO
 
   const [{ data: respostas }, { data: tokens }] = await Promise.all([
     supabaseAdmin.from('dpa_respostas').select('*').order('created_at', { ascending: true }),
@@ -114,7 +113,7 @@ export default async function RelatorioPage({
         </button>
         <a href="/painel" className="text-sm text-slate-500 hover:text-slate-700">← Voltar ao painel</a>
         <span className="ml-auto text-xs text-slate-400">
-          Modo: <strong>{completo ? 'Completo (com identificação)' : 'Anônimo (sem identificação)'}</strong>
+          Modo: <strong>{completo ? 'Completo (com identificação)' : demo ? 'Demo (dados anônimos)' : 'Anônimo (sem identificação)'}</strong>
         </span>
         <script dangerouslySetInnerHTML={{ __html: `document.getElementById('btn-print').onclick = () => window.print()` }} />
       </div>
@@ -125,7 +124,7 @@ export default async function RelatorioPage({
         <div style={{ borderBottom: '3px solid #0F62AC', paddingBottom: '16px', marginBottom: '24px' }}>
           <p style={{ color: '#0F62AC', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 4px 0' }}>CR BASSO EDUCAÇÃO CORPORATIVA</p>
           <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Relatório — Diagnóstico Prévio Anônimo (DPA)</h1>
-          <p style={{ fontSize: '14px', color: '#475569', margin: 0 }}>ASAC PHARMA &nbsp;·&nbsp; Gerado em {dataAtual} &nbsp;·&nbsp; {completo ? 'Exportação Completa' : 'Exportação Anônima'}</p>
+          <p style={{ fontSize: '14px', color: '#475569', margin: 0 }}>{demo ? 'Empresa Cliente' : 'ASAC PHARMA'} &nbsp;·&nbsp; Gerado em {dataAtual} &nbsp;·&nbsp; {completo ? 'Exportação Completa' : demo ? 'Modo Demo' : 'Exportação Anônima'}</p>
         </div>
 
         {/* Resumo */}
@@ -152,7 +151,7 @@ export default async function RelatorioPage({
 
         {/* Distribuições */}
         {[
-          { title: 'Localização Principal', d: distLoc, map: L_LOCALIZACAO },
+          { title: demo ? 'Departamento' : 'Localização Principal', d: distLoc, map: locMap },
           { title: 'Frequência de Linguagem Inadequada', d: distFreq, map: L_FREQUENCIA },
           { title: 'Nível de Envolvimento', d: distEnv, map: L_ENVOLVIMENTO },
           { title: 'Percepção de Diversidade', d: distPerc, map: L_PERCEPCAO },
@@ -192,8 +191,8 @@ export default async function RelatorioPage({
             const colab = resp.token_convite ? tokenMap.get(resp.token_convite as string) : null
             const campos: { label: string; value: string }[] = [
               { label: 'Data/Hora', value: resp.created_at ? new Date(resp.created_at as string).toLocaleString('pt-BR') : '—' },
-              { label: 'Perfil de liderança', value: resp.perfil_lideranca === true ? 'Sim' : resp.perfil_lideranca === false ? 'Não' : '—' },
-              { label: 'Localização principal', value: label(L_LOCALIZACAO, resp.localizacao_principal) },
+              { label: 'Perfil de liderança', value: resp.perfil_lideranca === true ? (demo ? 'Perfil Liderança' : 'Sim') : resp.perfil_lideranca === false ? (demo ? 'Perfil Operacional' : 'Não') : '—' },
+              { label: demo ? 'Departamento' : 'Localização principal', value: label(locMap, resp.localizacao_principal) },
               { label: 'Nota — Respeito e Profissionalismo', value: String(resp.nota_respeito_profissionalismo ?? '—') },
               { label: 'Justificativa da nota', value: String(resp.justificativa_nota ?? '—') },
               { label: 'Frequência de linguagem inadequada', value: label(L_FREQUENCIA, resp.frequencia_linguagem_inadequada) },
@@ -248,7 +247,7 @@ export default async function RelatorioPage({
 
         {/* Rodapé */}
         <div style={{ marginTop: '32px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: '10px', color: '#94a3b8' }}>
-          CR BASSO Educação Corporativa &nbsp;·&nbsp; Documento gerado automaticamente &nbsp;·&nbsp; {completo ? 'Uso restrito — contém dados pessoais' : 'Dados consolidados — sem identificação individual'}
+          CR BASSO Educação Corporativa &nbsp;·&nbsp; Documento gerado automaticamente &nbsp;·&nbsp; {completo ? 'Uso restrito — contém dados pessoais' : demo ? 'Versão demonstrativa — dados anônimos' : 'Dados consolidados — sem identificação individual'}
         </div>
       </div>
     </>

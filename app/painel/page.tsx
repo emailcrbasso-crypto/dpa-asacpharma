@@ -65,6 +65,12 @@ export default async function PainelPage() {
             <a href="/painel/relatorio-segmentado?mode=anonimo" target="_blank" className="text-white text-xs font-medium bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
               ↗ PDF Seg. Anônimo
             </a>
+            <a href="/painel/relatorio?mode=demo" target="_blank" className="text-white text-xs font-medium bg-yellow-500/70 hover:bg-yellow-500/90 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+              ↗ PDF Demo
+            </a>
+            <a href="/painel/relatorio-segmentado?mode=demo" target="_blank" className="text-white text-xs font-medium bg-yellow-500/70 hover:bg-yellow-500/90 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+              ↗ PDF Seg. Demo
+            </a>
             <form action={logout}>
               <button type="submit" className="text-blue-300 hover:text-white text-xs flex items-center gap-1 transition-colors ml-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
